@@ -1,0 +1,105 @@
+Use run.sh file for ubuntu.
+
+//To light 3 LEDS simultanesly on butten press
+PA7 6 5 4 3 2 1 0
+  0 0 0 0 0 1 1 1 //together ON
+register!
+
+Register represents the 8 bits of a port! eg PORTA
+
+1 corresponds to 5v . 
+0 corresponds to 0v .
+
+Button press makes PA3 high!
+i.e. 1
+00001xxx 
+
+DDRA/B/C decides whether a pin is input or output
+DDR- Data Direction Register (0-input 1-output)
+
+PORT Register is used for high/low on a Pin (5/0 V)
+like 00010010 is an output to a port
+
+PIN - Register for reading the input 
+like if PINA is read as 1110xxxx 
+pressing button makes it 1111xxxx (done by hardware)
+
+Quiz Junta!
+1.PA0, PA2  & PA3 -> Output
+	rest as input
+	DDRA = 00001101   (0 INPUT, 1 OUTPUT)
+2.High at PA0 & PA2 and PA3 as low
+	PORTA = xxxx01x1 (x is where it was INPUT)
+3. If we apply 5v at PA6 & PA7 
+	how will PINA look like ?
+	PINA  ==1100xx0x (x is where it was OUTPUT)
+
+x -> 0/1 (doesn't matter)
+
+BIT SHIFTING :!!
+Left Shift (by one bit)
+	76543210 
+	00110101 
+	01101010	7th is discarded
+zero appended by defination ( if not available)
+!! MULTIPLICATION by 2 
+	10110101 left shift by 1 ->
+	01101010
+*Modulo operation (%) , 14%3 = 2
+256 = 1 0000 0000 (binary representation)
+Qs!!
+Verify (x2)%256
+Bit shift by one ( Left shift ) 
+1. 00010010-> 16+2 = 18 ->36
+2. 10010000->128+16 = 144 -> 32
+3. 11111111-> 255 ->254
+
+do RIGHT SHIFT for above 
+   01100011  ( = 64+32+2+1=99)
+ ->00110001  (32+16+1= 49 = integer(99/2))
+=> division by 2 ( in binary )
+	Discard decimal part ( truncate to decimal)
+
+Operation In C : 
+'<<' left shift 
+'>>' Right Shift
+eg .  01101010<<2 ( left shift by 2)
+    ->10101000
+    10101000>>3 (right shift by 3)
+  ->00010101
+lets set 3rd pin of PORTA High
+C code :          76543210
+	PORTA = 0b00001000 ;
+	equivalently 
+	PORTA = 0b1<<3;
+	PORTA = 1<<3; // better than above
+lets set PA7, PA3 & PA1 as high
+        PORTA = 10001010;
+	PORTA = (1<<7)|(1<<3)|(1<<1);
+	which is (10000000|00001000|00000010)
+	'|' is OR operation
+
+BIT MASKING : 
+ let
+	DDRA = 00001111
+	PINA = 10101100 ( last four are Random
+		cause port is output for them)
+	only need to  know left 4 bits
+	then (PINA) AND (11110000) 
+can be  (PINA)&(~DDRA)   { '~' is NOT ie complement)
+*check 7th  bit ?!!	       
+(1xxx xxxx) AND (1<<7) = 1000 0000
+
+DDR -> DATA direction register 
+	setting INPUT/OUTPUT
+PORT -> Setting Values for port (HIGH/LOW)
+PIN  -> Port IN
+	Getting values from port
+	reading from input pins
+11110000   (x2) = 1 1110 0000
+		    1110 0000
+00100100 is same as (1<<5)|(1<<2)	
+
+
+
+

@@ -1,0 +1,68 @@
+TCNT follow the Atmega clock( 1 MHz). We can control TCNT but nont the Atmega intenal clock.
+TCNT only has 16 bits so it can't go till 1M(1000000).It can only go till 65535(16 bits).
+So if we want to count 70000,we can count 35000 two times!!
+
+Generally we use prescaler as 64 since it helps us to transverse through the whole 1 second.
+To see what configurtion of TCCR1B is required for what prescaler see the "datasheet"!!
+
+Datasheet will be analogous to google.
+
+OCIE1A compares OCR1A with TCNT and interrups when they match.
+
+Inverting Mode - Pehle low fir high
+Non-inverting mode - Pehle high fir low
+
+F_CPU = frequency of CPU ( 1 MHz in this case )
+
+ICR1A= F_CPU/ frequency we want. ICR1A is the maximum value.
+
+Use a prescalar any time the TCNT goes above 65535 even in case of PWM.(Pulse with modulation- To get a voltage between 0-5)
+
+Instructions register sends the commands I want to send to the LCD. Data register stores the data I want to show on the LCD.
+
+DDRAM Address sets the address of the cursor(i.e. where to write the alphabet in Data register).
+DDRAM stores the alphabets.
+
+Data register has the ASCII value. The corresponding characters are picked up from the ROM and sent to the DDRAM.
+
+/* semi-pseudo code to understand DDRAM
+
+	char DDRAM[32];
+	int DDRAM_addr = 0;
+	DDRAM_addr = 5;
+	DDRAM[DDRAM_addr] = 'A';
+	DDRAM_addr++;//Automated by lcd.
+*/
+
+CGRAM -character graphics RAM
+CGRAM is used to define new character. For example for printing a smiley and stuff.(not :)  but vertical smiley)
+
+Atmega16 mean we have 16kb space to store our program.
+
+Multiplexer is used to get input from 8 input pins one at a time. So we have 3 selection bits which is 8 combinations. According to which combination is selected we get output from one of the 8 inputs(i.e. 8 different devices).
+
+ADEN - enable adc
+ADSC - start conversion from analog to digital
+ADATE - used when we want to use custom interrupts
+ADPS - used to set prescalar( only for ADC)
+ADIE - For using ADC we are using interrupts.
+
+We have 5 MUX for the multiplexer rather than just 3 for the 8 inputs because we also have some extra functionality like for magifying the signal for better resolutions.
+
+REFS0 AND REFS1 - to set reference voltage( there are 2 pins AVCC ,AREF,Internal AREF(not a pin). Kaun se ko reference volatage(max of ADC) rakhna hai vo decide hoga. since 3 options hai so we require 2 bits).
+In case of Internal voltage there are chances of noise so we connect a capacitor at AREF.
+
+ADCH mein bit shift by 8 kar rhe hain and then 16 bit variable mein store kar rhe hain so gayab nhi honge bits.
+
+In case of left adjustment( used only for very big values ) the ADCL is neglected and value of only ADCH is taken.
+ADC gives a 10 bit number(1024 levels).
+So less significant 8 bits ADCL mein jaate hain and 2 bit ADCH mein jaate hain.
+ISR keeps working in infinite loop if ADSC remains 1. That is why ADSC is set to 1 in ISR. This is like a 'call-back function'. So main is calling ISR again and again. No ISR calling itself in infi loop. That will finish out the memory.
+
+ISR is itself a part of a very large function. So after ISR is complete control goes to the large function which calls ISR again if ADSC is 1. And this goes on in the background. The main function is also working alongside.
+
+At a time only one type of ADC can work.
+
+When ADSC is set to 1, the conversion is started. When the conversion ends then the interrupt is called!
+
+The location of the ISR funcitons is fixed so they are faster to call.
